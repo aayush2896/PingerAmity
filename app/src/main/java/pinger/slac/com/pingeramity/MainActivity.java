@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Random;
 
-
+//Author Shiv
 public class MainActivity extends Activity implements View.OnClickListener {
 
     TextView text;
@@ -29,6 +29,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     File filepath;
     FileWriter writer;
 
+    //TestCommit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 // TODO Auto-generated method stub
