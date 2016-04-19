@@ -1,6 +1,9 @@
 package pinger.slac.com.pingeramity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -11,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -18,6 +22,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 
 //Author Shiv
@@ -39,12 +46,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
         ListView listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(adapter);
 
+        /* Retrieve a PendingIntent that will perform a broadcast */
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent myIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+        PendingIntent  pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, 0);
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, 30);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        long timeMillis =  cal.getTimeInMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
+        Date resultdate = new Date(timeMillis);
+        Log.w("Setting First Alarm","Setting First Alarm at: "+sdf.format(resultdate));
+        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+
+
         text = (TextView) findViewById(R.id.tvDisplay);
         Button button = (Button) findViewById(R.id.bPing);
         button.setOnClickListener(this);
         MakeFile();
 
-    }
+      }
 
     public void MakeFile(){
         try {
