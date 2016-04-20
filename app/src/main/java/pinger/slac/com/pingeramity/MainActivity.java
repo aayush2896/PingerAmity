@@ -36,24 +36,32 @@ public class MainActivity extends Activity implements View.OnClickListener {
     File filepath;
     FileWriter writer;
 
-    //TestCommit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-// TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //UI
         ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, beaconList);
         ListView listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(adapter);
+        text = (TextView) findViewById(R.id.tvDisplay);
+        Button button = (Button) findViewById(R.id.bPing);
+        button.setOnClickListener(this);
 
-        /* Retrieve a PendingIntent that will perform a broadcast */
+
+        //Setup of alarm manger and PI
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent myIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-        PendingIntent  pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, 0);
+
+        //Setting 30mns ping interval
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, 30);
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+
+        //Formatting and setting up first alarm at a 30 mns interval
         long timeMillis =  cal.getTimeInMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
         Date resultdate = new Date(timeMillis);
@@ -61,9 +69,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
 
 
-        text = (TextView) findViewById(R.id.tvDisplay);
-        Button button = (Button) findViewById(R.id.bPing);
-        button.setOnClickListener(this);
+       //Setting up file
         MakeFile();
 
       }
@@ -71,9 +77,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void MakeFile(){
         try {
             root = new File(Environment.getExternalStorageDirectory(), "PingER");
-            // if external memory exists and folder with name Notes
             if (!root.exists()) {
-                root.mkdirs(); // this will create folder.
+                root.mkdirs();
             }
             //  String h = DateFormat.format("MM-dd-yyyyy-h-mmssaa", System.currentTimeMillis()).toString();
             // this will create a new name everytime and unique
@@ -98,7 +103,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
             bW.close();
         } catch (IOException e) {
             e.printStackTrace();
-            //  result.setText(e.getMessage().toString());
         }
     }
 
@@ -107,36 +111,34 @@ public class MainActivity extends Activity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.bPing:
                 Random random = new Random();
-                //   int i = random.nextInt(beaconList.length);
-                for (int i = 0; i < beaconList.length; i++) {
+                int i = random.nextInt(beaconList.length);
                     Editable host = new SpannableStringBuilder(beaconList[i]);
                     Log.w("Test", "Test " + i);
-                    try {
-                        String pingCmd = "ping -c 5 " + host;
-                        String pingResult = "";
-                        Runtime r = Runtime.getRuntime();
-                        Process p = r.exec(pingCmd);
-                        BufferedReader in = new BufferedReader(new
-                                InputStreamReader(p.getInputStream()));
-                        String inputLine;
-                        while ((inputLine = in.readLine()) != null) {
-                            System.out.println(inputLine);
-                            text.setText("Ping For: " + beaconList[i] + "  " + i);
+                  try {
+                    String pingCmd = "ping -s 100 -c 10 " + host;//-D doesnt work on android
+                    String pingResult = "";
+                    Runtime r = Runtime.getRuntime();
+                    Process p = r.exec(pingCmd);
+                    BufferedReader in = new BufferedReader(new
+                            InputStreamReader(p.getInputStream()));
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        System.out.println(inputLine);
+                        text.setText(inputLine + "\n\n");
+                        pingResult += inputLine;
 
-                            text.setText(inputLine + "\n\n");
-                            pingResult += inputLine;
-                            text.setText(pingResult);
-                            appendToFile();
-                        }
-                        in.close();
-                    }//try
-                    catch (IOException e) {
-                        System.out.println(e);
+                        //PARSE THE STRING TO THE REQUIRED FORMAT HERE and put it in pingResult so it can automatically be saved to the file...
+                        text.setText(pingResult);
+                        appendToFile();
                     }
+                    in.close();
+                     }//try
+                     catch (IOException e) {
+                    System.out.println(e);
+                     }
                     break;
-
                 }
         }
     }
 
-}
+

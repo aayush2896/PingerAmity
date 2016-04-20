@@ -17,12 +17,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        // For our recurring task, we'll just display a message
-        long timeMillis = System.currentTimeMillis();
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
-        Date resultdate = new Date(timeMillis);
+        //Pinging Here
+        //Update to sever every 24hrs
 
-        Log.w("Running","Running "+sdf.format(resultdate));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
+
         AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent myIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, myIntent, 0);
