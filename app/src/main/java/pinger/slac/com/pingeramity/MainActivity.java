@@ -128,7 +128,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             while ((inputLine = in.readLine()) != null) {
                                 System.out.println(inputLine);
                                 final String  var=inputLine;
-
                                 text.post(new Runnable() {
                                     public void run() {
                                         text.setText(var + "\n\n");
