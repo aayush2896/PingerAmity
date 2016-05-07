@@ -120,13 +120,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         try {
                             String pingCmd = "ping -s 100 -c 10 " + host;//-D doesnt work on android
                             String pingResult = "";
+
                             Runtime r = Runtime.getRuntime();
                             p = r.exec(pingCmd);
                             BufferedReader in = new BufferedReader(new
                                     InputStreamReader(p.getInputStream()));
                             String  inputLine;
                             while ((inputLine = in.readLine()) != null) {
+                                inputLine="["+System.currentTimeMillis()/1000+"]"+inputLine;
                                 System.out.println(inputLine);
+
                                 final String  var=inputLine;
                                 text.post(new Runnable() {
                                     public void run() {
@@ -135,6 +138,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                 });
                                 pingResult += inputLine;
                                 final String  ping_result=pingResult;
+
                                 //PARSE THE STRING TO THE REQUIRED FORMAT HERE and put it in pingResult so it can automatically be saved to the file...
                                 text.post(new Runnable() {
                                     public void run() {
@@ -159,54 +163,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
 
 
-    public static String executeCmd(String cmd, boolean sudo){
-        try {
-
-            Process p;
-            if(!sudo)
-                p= Runtime.getRuntime().exec(cmd);
-            else{
-                p= Runtime.getRuntime().exec(new String[]{"su", "-c", cmd});
-            }
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            String s;
-            String res = "";
-            while ((s = stdInput.readLine()) != null) {
-                res += s + "\n";
-            }
-            p.destroy();
-            return res;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-
-    }
-
-    public String ping(String url) {
-        String str = "";
-        try {
-            Process process = Runtime.getRuntime().exec(
-                    "/system/bin/ping -s 100 -c 10  " + url+"");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    process.getInputStream()));
-            int i;
-            char[] buffer = new char[4096];
-            StringBuffer output = new StringBuffer();
-            while ((i = reader.read(buffer)) > 0)
-                output.append(buffer, 0, i);
-            reader.close();
-
-            // body.append(output.toString()+"\n");
-            str = output.toString();
-             Log.d("TAG", str);
-        } catch (IOException e) {
-            // body.append("Error\n");
-            e.printStackTrace();
-        }
-        return str;
-    }
 }
 
 
