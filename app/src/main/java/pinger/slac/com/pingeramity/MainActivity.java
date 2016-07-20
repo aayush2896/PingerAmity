@@ -27,11 +27,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
+import pinger.slac.exceptions.RegexMatches;
+
+
 //Author Shiv
 public class MainActivity extends Activity implements View.OnClickListener {
 
     TextView text;
-    String[] beaconList = {"192.168.1.1","www.andi.dz","waib.gouv.bj","www.gov.bw","www.univ-ouaga.bf","www.univ-koudougou.bf","www.assemblee.bi","www.anor.cm"};
+    String[] beaconList = {"www.yahoo.com","www.andi.dz","waib.gouv.bj","www.gov.bw","www.univ-ouaga.bf","www.univ-koudougou.bf","www.assemblee.bi","www.anor.cm"};
     File root;
     File filepath;
     FileWriter writer;
@@ -92,11 +95,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    public void appendToFile(){
+    public void appendToFile(String inputLine){
         try {
             BufferedWriter bW;
             bW = new BufferedWriter(new FileWriter(filepath,true));
-            bW.write(text.getText().toString());
+            bW.write(inputLine);
             bW.newLine();
             bW.flush();
             bW.close();
@@ -112,7 +115,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 new Thread(new Runnable() {
                     public void run() {
                         Random random = new Random();
-                        for(int i=0;i<beaconList.length;i++){
+                        for(int i=0;i<1;i++){//
                         //int i = random.nextInt(beaconList.length);
                         Editable host = new SpannableStringBuilder(beaconList[i]);
                         Log.w("Test", "Test " + i);
@@ -125,27 +128,36 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             p = r.exec(pingCmd);
                             BufferedReader in = new BufferedReader(new
                                     InputStreamReader(p.getInputStream()));
-                            String  inputLine;
+                            String inputLine;
+
                             while ((inputLine = in.readLine()) != null) {
-                                inputLine="["+System.currentTimeMillis()/1000+"]"+inputLine;
+                                //System.out.println("Tester "+inputLine+" space "+inputLine.toLowerCase().contains("rtt"));
+
+                                //Starting point check when ping issued
+                                if((!inputLine.toLowerCase().contains("ping"))){
+                                    inputLine = "[" + System.currentTimeMillis() / 1000 + "]" + inputLine;
+                                }
                                 System.out.println(inputLine);
 
-                                final String  var=inputLine;
-                                text.post(new Runnable() {
-                                    public void run() {
-                                        text.setText(var + "\n\n");
-                                    }
-                                });
-                                pingResult += inputLine;
-                                final String  ping_result=pingResult;
+                                //keep adding to block
+                                pingResult += inputLine+"\n";
+                                final String ping_result=pingResult;
 
-                                //PARSE THE STRING TO THE REQUIRED FORMAT HERE and put it in pingResult so it can automatically be saved to the file...
+                                //Show progress in UI
                                 text.post(new Runnable() {
                                     public void run() {
                                         text.setText(ping_result);
                                     }
-                                  });
-                                appendToFile();
+                                });
+
+                                //One set of pings fully received
+                                if(inputLine.contains("rtt"))
+                                {
+                                    //Only once rtt is recived we save to file, regex checks on block of code can be performed here b4 saving to file
+                                    String finalString=RegexMatches.PassesAllTests(ping_result);
+                                    appendToFile(finalString);
+                                    pingResult="";
+                                }
                             }
                             System.out.print("Error Stream: " + p.getErrorStream());
                             in.close();
