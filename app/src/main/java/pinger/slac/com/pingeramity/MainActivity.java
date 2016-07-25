@@ -34,7 +34,7 @@ import pinger.slac.exceptions.RegexMatches;
 public class MainActivity extends Activity implements View.OnClickListener {
 
     TextView text;
-    String[] beaconList = {"www.yahoo.com","www.andi.dz","waib.gouv.bj","www.gov.bw","www.univ-ouaga.bf","www.univ-koudougou.bf","www.assemblee.bi","www.anor.cm"};
+    String[] beaconList = {"www.andi.dz","waib.gouv.bj","www.gov.bw","www.univ-ouaga.bf","www.univ-koudougou.bf","www.assemblee.bi","www.anor.cm"};
     File root;
     File filepath;
     FileWriter writer;
@@ -118,7 +118,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         for(int i=0;i<1;i++){//
                         //int i = random.nextInt(beaconList.length);
                         Editable host = new SpannableStringBuilder(beaconList[i]);
-                        Log.w("Test", "Test " + i);
+
                         Process p = null;
                         try {
                             String pingCmd = "ping -s 100 -c 10 " + host;//-D doesnt work on android
@@ -135,8 +135,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                                 //Starting point check when ping issued
                                 if((!inputLine.toLowerCase().contains("ping"))){
-                                    inputLine = "[" + System.currentTimeMillis() / 1000 + "]" + inputLine;
                                 }
+                                inputLine = "[" + System.currentTimeMillis() / 1000 + "]" + inputLine;
+
                                 System.out.println(inputLine);
 
                                 //keep adding to block
@@ -154,7 +155,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                 if(inputLine.contains("rtt"))
                                 {
                                     //Only once rtt is recived we save to file, regex checks on block of code can be performed here b4 saving to file
-                                    String finalString=RegexMatches.PassesAllTests(ping_result);
+                                    String finalString=RegexMatches.PassesAllTests(ping_result,getBaseContext());
                                     appendToFile(finalString);
                                     pingResult="";
                                 }

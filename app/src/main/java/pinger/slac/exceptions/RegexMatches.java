@@ -1,16 +1,75 @@
 package pinger.slac.exceptions;
 
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.util.Log;
+
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegexMatches
 {
 
-    public static String PassesAllTests(String pingData){
+    public static String PassesAllTests(String pingData, Context contenxt){
         String finalString="";
+        //     Log.w("All PingData ","Ping Data "+pingData);
+        String[] everyLine=pingData.split("\n");
+        for (int i=0;i<everyLine.length;i++) {
+            Log.w("Line " + i,everyLine[i]);
+        }
         //Try all the checks here and extract the necessary data using the regex below pingData is one block of ping data i.e always complete either you get all the data or you get nothing ensuring consistency in the result
+        try {
+            String hostName=android.os.Build.MODEL;
+            String hostIP=getHostIp(contenxt);
+            String groupTimestamp = parseGroupTimestamp(pingData);
+            String groupIP = parseGroupIP(pingData);
+            String groupURL = parseGroupURL(pingData);
+            String[] groupBytes = parseGroupBytes(pingData);
+            int packetsSent= getNumberOfPacketsSent(pingData);
+            int packetsReceived= getNumberOfPacketsReceived(pingData);
+            String icmpCount=countICMP(pingData);
+            String icmpTimeStamps=timeOFEachIcmp(pingData);
 
+          //  getAllStatisticData(pingData);
+            finalString+=hostName+" "+hostIP+" "+groupURL+" "+groupIP+" "+groupBytes[0]+" "+groupTimestamp+"  "+packetsSent+" "+packetsReceived+" "+icmpCount+" "+icmpTimeStamps;
+        }
+        catch (Exception exceptions){
+            exceptions.printStackTrace();
+        }
+        Log.w("Final String ","final string "+finalString);
         return finalString;
+
+    }
+
+    public static String getHostIp(Context context) {
+        WifiManager wm = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+        WifiInfo wifiinfo = wm.getConnectionInfo();
+        byte[] myIPAddress = BigInteger.valueOf(wifiinfo.getIpAddress()).toByteArray();
+        Byte[] byteObjects = new Byte[myIPAddress.length];
+        int i = 0;
+        // Associating Byte array values with bytes. (byte[] to Byte[])
+        for (byte b : myIPAddress)
+            byteObjects[i++] = b;  // Autoboxing.
+        // you must reverse the byte array before conversion. Use Apache's commons library
+
+        List<Byte> byteList = Arrays.asList(byteObjects);
+        Collections.reverse(byteList);
+        try {
+            InetAddress myInetIP = InetAddress.getByAddress(myIPAddress);
+            String myIP = myInetIP.getHostAddress();
+            return myIP;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return "No Host";
+        }
     }
 
     public static String parse1(String input){
@@ -31,6 +90,63 @@ public class RegexMatches
             return m.group(1);
         else
             throw new TimeStampNotFoundException();
+    }
+
+    public static int getNumberOfPacketsSent(String input) {
+        Pattern p = Pattern.compile("\\d+ packets");
+        Matcher m = p.matcher(input);
+        if (m.find())
+            return Integer.parseInt(m.group(0).replaceAll("[\\D]", ""));
+        else
+            return 0;
+
+    }
+
+    public static int getNumberOfPacketsReceived(String input) {
+        Pattern p = Pattern.compile("\\d+ received");
+        Matcher m = p.matcher(input);
+        if (m.find())
+            return Integer.parseInt(m.group(0).replaceAll("[\\D]", ""));
+        else
+            return 0;
+
+    }
+
+    public static String countICMP(String input) {
+        Pattern p = Pattern.compile("icmp_seq=");
+        Matcher m = p.matcher(input);
+        int i=0;
+        String icmp="";
+        while (m.find()){
+            i++;
+            icmp+=i+" ";
+        }
+        return icmp;
+    }
+
+    public static String timeOFEachIcmp(String input) {
+        Pattern p = Pattern.compile("time=\\d+");
+        Matcher m = p.matcher(input);
+        int i=0;
+        String timeForEachIcmp="";
+        while (m.find()){
+            Log.w("Found ","Found "+m.group(0));
+            timeForEachIcmp+=Integer.parseInt(m.group(0).replaceAll("[\\D]", ""))+" ";
+        }
+        return timeForEachIcmp;
+    }
+
+    public static void getAllStatisticData(String input){
+        Pattern p = Pattern.compile("-?[0-9]+(?:,[0-9]+)?");
+        Matcher m = p.matcher(input);
+
+        ArrayList<Double> statisticData=new ArrayList<>();
+        int i=0;
+        while (m.find()) {
+            statisticData.add(Double.parseDouble(m.group(0)));
+            System.out.println(m.group()+"  "+statisticData.get(i));
+            i++;
+        }
     }
 
     //  Works!
@@ -63,14 +179,15 @@ public class RegexMatches
         Pattern p1 = Pattern.compile("\\)\\s+(\\d+)\\(");
         Matcher m1 = p1.matcher(input);
         Pattern p2 = Pattern.compile("\\((\\d+)\\)\\s+bytes");
-        Matcher m2 = p2.matcher(input);
+        //     Matcher m2 = p2.matcher(input);
         String[] GroupBytes = new String[2];
         int x = m1.groupCount();
-        int y = m2.groupCount();
-        if(m1.find() || m2.find()){
+        //    int y = m2.groupCount();
+        if(m1.find() ){//        if(m1.find() ){//
             GroupBytes[0] = m1.group(1);
-            GroupBytes[1] = m2.group(1);
+//            GroupBytes[1] = m2.group(1);
             return GroupBytes;
+
         }
         else
             throw new BytesNotFoundException();
@@ -229,7 +346,7 @@ public class RegexMatches
     // No error but all values null
     public static String[] parsePingStatisticsMinAvgMaxMdev(String input) throws TimeNotFoundException {
         // Capture the rtt min/avg/max/mdev times
-        Pattern p = Pattern.compile("rtt\\s+min/avg/max/mdev\\s+=\\s+([0-9]+\\.[0-9]+)/([0-9]+\\.[0-9]+)/([0-9]+\\.[0-9]+)/([0-9]+\\.[0-9]+)\\s+ms");
+        Pattern p = Pattern.compile("rtt\\s+min\\/avg\\/max\\/mdev\\s+=\\s+([0-9]+\\.[0-9]+)\\/([0-9]+\\.[0-9]+)\\/([0-9]+\\.[0-9]+)\\/([0-9]+\\.[0-9]+)\\s+ms");
         Matcher m = p.matcher(input);
         if (m.find()){
             int i = 0;
