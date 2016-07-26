@@ -50,7 +50,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         Button button = (Button) findViewById(R.id.bPing);
         button.setOnClickListener(this);
 
-
         //Setup of alarm manger and PI
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent myIntent = new Intent(MainActivity.this, AlarmReceiver.class);
@@ -68,7 +67,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         Date resultdate = new Date(timeMillis);
         Log.w("Setting First Alarm","Setting First Alarm at: "+sdf.format(resultdate));
         Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
-
+        Ping();
 
        //Setting up file
         MakeFile();
@@ -173,7 +172,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bPing:
-                Ping();
+               // Ping();
                 break;
 
         }

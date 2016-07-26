@@ -143,7 +143,6 @@ public class RegexMatches
         int i=0;
         String timeForEachIcmp="";
         while (m.find()){
-            Log.w("Found ","Found "+m.group(0));
             timeForEachIcmp+=Integer.parseInt(m.group(0).replaceAll("[\\D]", ""))+" ";
         }
         return timeForEachIcmp;
