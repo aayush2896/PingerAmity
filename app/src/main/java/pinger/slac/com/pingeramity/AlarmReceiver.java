@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,7 +24,6 @@ import java.util.Random;
 
 //Author Shiv
 public class AlarmReceiver extends BroadcastReceiver {
-
     String[] beaconList = {"www.andi.dz","waib.gouv.bj","www.gov.bw","www.univ-ouaga.bf","www.univ-koudougou.bf","www.assemblee.bi","www.anor.cm"};
     File filepath;
     File root;
@@ -50,7 +50,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     void ResetAlarm(Context context){
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
-
         AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent myIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, myIntent, 0);
@@ -58,6 +57,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         cal.add(Calendar.MINUTE, 30);
         am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         Date resultdate2 = new Date(cal.getTimeInMillis());
+        Toast.makeText(context,"Working on it",Toast.LENGTH_LONG).show();
         Log.w("alarm reset", "alarm reset next alarm at: "+sdf.format(resultdate2));
     }
 

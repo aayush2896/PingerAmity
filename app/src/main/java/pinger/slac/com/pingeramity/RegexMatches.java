@@ -29,11 +29,14 @@ public class RegexMatches
 
     public static String PassesAllTests(String pingData, Context contenxt){
         String finalString="";
-        //     Log.w("All PingData ","Ping Data "+pingData);
+
+        /* Split ping of every line of data
         String[] everyLine=pingData.split("\n");
         for (int i=0;i<everyLine.length;i++) {
-            Log.w("Line " + i,everyLine[i]);
+        //    Log.w("Line " + i,everyLine[i]);
         }
+         */
+
         //Try all the checks here and extract the necessary data using the regex below pingData is one block of ping data i.e always complete either you get all the data or you get nothing ensuring consistency in the result
         try {
             String hostName=android.os.Build.MODEL;
@@ -51,6 +54,8 @@ public class RegexMatches
             String avg = statistics[1];
             String max = statistics[2];
           //  getAllStatisticData(pingData);
+
+
             finalString+=hostName+" "+hostIP+" "+groupURL+" "+groupIP+" "+groupBytes[0]+" "+groupTimestamp+"  "+packetsSent+" "+packetsReceived+" "+min+" "+avg+" "+max+" "+icmpCount+" "+icmpTimeStamps;
         }
         catch (Exception exceptions){

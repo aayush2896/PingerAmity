@@ -67,6 +67,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         Date resultdate = new Date(timeMillis);
         Log.w("Setting First Alarm","Setting First Alarm at: "+sdf.format(resultdate));
         Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+
+        //PingWhenever app opens
         Ping();
 
        //Setting up file
