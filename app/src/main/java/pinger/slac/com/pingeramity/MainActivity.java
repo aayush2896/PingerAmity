@@ -27,8 +27,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-import pinger.slac.exceptions.RegexMatches;
-
 
 //Author Shiv
 public class MainActivity extends Activity implements View.OnClickListener {
@@ -108,74 +106,80 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    public void Ping(){
+        new Thread(new Runnable() {
+            public void run() {
+                Random random = new Random();
+                for(int i=0;i<beaconList.length;i++){//
+                    //int i = random.nextInt(beaconList.length);
+                    Editable host = new SpannableStringBuilder(beaconList[i]);
+
+                    Process p = null;
+                    try {
+                        String pingCmd = "ping -s 100 -c 10 " + host;//-D doesnt work on android
+                        String pingResult = "";
+
+                        Runtime r = Runtime.getRuntime();
+                        p = r.exec(pingCmd);
+                        BufferedReader in = new BufferedReader(new
+                                InputStreamReader(p.getInputStream()));
+                        String inputLine;
+
+                        while ((inputLine = in.readLine()) != null) {
+                            //System.out.println("Tester "+inputLine+" space "+inputLine.toLowerCase().contains("rtt"));
+
+                            //Starting point check when ping issued
+                            if((!inputLine.toLowerCase().contains("ping"))){
+                            }
+                            inputLine = "[" + System.currentTimeMillis() / 1000 + "]" + inputLine;
+
+                            System.out.println(inputLine);
+
+                            //keep adding to block
+                            pingResult += inputLine+"\n";
+                            final String ping_result=pingResult;
+
+                            //Show progress in UI
+                            text.post(new Runnable() {
+                                public void run() {
+                                    text.setText(ping_result);
+                                }
+                            });
+
+                            //One set of pings fully received
+                            if(inputLine.contains("rtt"))
+                            {
+                                //Only once rtt is recived we save to file, regex checks on block of code can be performed here b4 saving to file
+                                String finalString=RegexMatches.PassesAllTests(ping_result,getBaseContext());
+                                appendToFile(finalString);
+                                pingResult="";
+                            }
+                        }
+                        System.out.print("Error Stream: " + p.getErrorStream());
+                        in.close();
+                    }//try
+                    catch (IOException e) {
+                        System.out.println(e);
+                        System.out.print("Error Stream: " + p.getErrorStream());
+                    }
+                }
+            }
+        }).start();
+
+
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bPing:
-                new Thread(new Runnable() {
-                    public void run() {
-                        Random random = new Random();
-                        for(int i=0;i<1;i++){//
-                        //int i = random.nextInt(beaconList.length);
-                        Editable host = new SpannableStringBuilder(beaconList[i]);
+                Ping();
+                break;
 
-                        Process p = null;
-                        try {
-                            String pingCmd = "ping -s 100 -c 10 " + host;//-D doesnt work on android
-                            String pingResult = "";
-
-                            Runtime r = Runtime.getRuntime();
-                            p = r.exec(pingCmd);
-                            BufferedReader in = new BufferedReader(new
-                                    InputStreamReader(p.getInputStream()));
-                            String inputLine;
-
-                            while ((inputLine = in.readLine()) != null) {
-                                //System.out.println("Tester "+inputLine+" space "+inputLine.toLowerCase().contains("rtt"));
-
-                                //Starting point check when ping issued
-                                if((!inputLine.toLowerCase().contains("ping"))){
-                                }
-                                inputLine = "[" + System.currentTimeMillis() / 1000 + "]" + inputLine;
-
-                                System.out.println(inputLine);
-
-                                //keep adding to block
-                                pingResult += inputLine+"\n";
-                                final String ping_result=pingResult;
-
-                                //Show progress in UI
-                                text.post(new Runnable() {
-                                    public void run() {
-                                        text.setText(ping_result);
-                                    }
-                                });
-
-                                //One set of pings fully received
-                                if(inputLine.contains("rtt"))
-                                {
-                                    //Only once rtt is recived we save to file, regex checks on block of code can be performed here b4 saving to file
-                                    String finalString=RegexMatches.PassesAllTests(ping_result,getBaseContext());
-                                    appendToFile(finalString);
-                                    pingResult="";
-                                }
-                            }
-                            System.out.print("Error Stream: " + p.getErrorStream());
-                            in.close();
-                        }//try
-                        catch (IOException e) {
-                            System.out.println(e);
-                            System.out.print("Error Stream: " + p.getErrorStream());
-                        }
-                    }
-                    }
-                }).start();
-
-                    break;
-                }
         }
 
 
+    }
 }
 
 

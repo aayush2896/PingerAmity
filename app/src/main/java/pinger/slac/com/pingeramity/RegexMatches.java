@@ -1,4 +1,4 @@
-package pinger.slac.exceptions;
+package pinger.slac.com.pingeramity;
 
 import android.content.Context;
 import android.net.wifi.WifiInfo;
@@ -13,6 +13,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import pinger.slac.exceptions.BytesNotFoundException;
+import pinger.slac.exceptions.ICMPNotFoundException;
+import pinger.slac.exceptions.IPAddressNotFoundException;
+import pinger.slac.exceptions.ReceivedNotFoundException;
+import pinger.slac.exceptions.TTLNotFoundException;
+import pinger.slac.exceptions.TimeNotFoundException;
+import pinger.slac.exceptions.TimeStampNotFoundException;
+import pinger.slac.exceptions.TransmittedNotFoundException;
+import pinger.slac.exceptions.URLNotFoundException;
 
 public class RegexMatches
 {
@@ -36,9 +46,12 @@ public class RegexMatches
             int packetsReceived= getNumberOfPacketsReceived(pingData);
             String icmpCount=countICMP(pingData);
             String icmpTimeStamps=timeOFEachIcmp(pingData);
-
+            String[] statistics=parsePingStatisticsMinAvgMaxMdev(pingData);
+            String min = statistics[0];
+            String avg = statistics[1];
+            String max = statistics[2];
           //  getAllStatisticData(pingData);
-            finalString+=hostName+" "+hostIP+" "+groupURL+" "+groupIP+" "+groupBytes[0]+" "+groupTimestamp+"  "+packetsSent+" "+packetsReceived+" "+icmpCount+" "+icmpTimeStamps;
+            finalString+=hostName+" "+hostIP+" "+groupURL+" "+groupIP+" "+groupBytes[0]+" "+groupTimestamp+"  "+packetsSent+" "+packetsReceived+" "+min+" "+avg+" "+max+" "+icmpCount+" "+icmpTimeStamps;
         }
         catch (Exception exceptions){
             exceptions.printStackTrace();
@@ -344,20 +357,20 @@ public class RegexMatches
 
     // Does't work
     // No error but all values null
-    public static String[] parsePingStatisticsMinAvgMaxMdev(String input) throws TimeNotFoundException {
-        // Capture the rtt min/avg/max/mdev times
-        Pattern p = Pattern.compile("rtt\\s+min\\/avg\\/max\\/mdev\\s+=\\s+([0-9]+\\.[0-9]+)\\/([0-9]+\\.[0-9]+)\\/([0-9]+\\.[0-9]+)\\/([0-9]+\\.[0-9]+)\\s+ms");
-        Matcher m = p.matcher(input);
-        if (m.find()){
-            int i = 0;
-            String[] s = new  String[4];
-            while(m.find()){
-                s[i] = m.group(++i);
-            }
-            return s;
+    public static String[] parsePingStatisticsMinAvgMaxMdev(String input) throws
+        TimeNotFoundException {
+            // Capture the rtt min/avg/max/mdev times
+            Pattern p = Pattern.compile("rtt\\s+min\\/avg\\/max\\/mdev\\s+=\\s+(\\d+\\.\\d+)\\/(\\d+\\.\\d+)\\/(\\d+\\.\\d+)\\/(\\d+\\.\\d+)\\s+ms");
+            Matcher m = p.matcher(input);
+            if (m.find()) {
+                int i = 1;
+                String[] s = new String[4];
+                while (m.find(i) && i <= 4) {
+                    s[i - 1] = m.group(i);
+                    i++;
+                }
+                return s;
+            } else
+                throw new TimeNotFoundException();
         }
-        else
-            throw new TimeNotFoundException();
-
     }
-}

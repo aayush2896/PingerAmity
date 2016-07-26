@@ -21,6 +21,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         //Update to sever every 24hrs
 
 
+
+        ResetAlarm(context);
+    }
+
+    void ResetAlarm(Context context){
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
 
         AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -31,6 +36,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         Date resultdate2 = new Date(cal.getTimeInMillis());
         Log.w("alarm reset", "alarm reset next alarm at: "+sdf.format(resultdate2));
-
     }
+
+
 }
