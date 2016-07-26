@@ -99,6 +99,7 @@ public class RegexMatches
         // Capture the [unix-timestamp] before 'PING'
         Pattern p = Pattern.compile("\\[([0-9]{10})\\]PING");
         Matcher m = p.matcher(input);
+        int x;
         if (m.find())
             return m.group(1);
         else
