@@ -79,15 +79,33 @@ public class RegexMatches
 
         List<Byte> byteList = Arrays.asList(byteObjects);
         Collections.reverse(byteList);
+        byte[] byt= new byte[byteList.size()];
+        for(int k=0;k<byteList.size();k++)
+        {
+            byt[k]=byteList.get(k);
+        }
+
         try {
-            InetAddress myInetIP = InetAddress.getByAddress(myIPAddress);
+            InetAddress myInetIP = InetAddress.getByAddress(byt);
             String myIP = myInetIP.getHostAddress();
+
             return myIP;
         }
         catch (Exception e){
             e.printStackTrace();
             return "No Host";
         }
+    }
+
+    public byte[] toPrimitives(Byte[] oBytes)
+    {
+
+        byte[] bytes = new byte[oBytes.length];
+        for(int i = 0; i < oBytes.length; i++){
+            bytes[i] = oBytes[i];
+        }
+        return bytes;
+
     }
 
     public static String parse1(String input){
