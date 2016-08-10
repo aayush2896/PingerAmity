@@ -39,7 +39,7 @@ public class RegexMatches
 
         //Try all the checks here and extract the necessary data using the regex below pingData is one block of ping data i.e always complete either you get all the data or you get nothing ensuring consistency in the result
         try {
-            String hostName=android.os.Build.MODEL;
+            String hostName="pinger-and1.amity.edu";//android.os.Build.MODEL;
             String hostIP=getHostIp(contenxt);
             String groupTimestamp = parseGroupTimestamp(pingData);
             String groupIP = parseGroupIP(pingData);
