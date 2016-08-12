@@ -114,10 +114,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 for(int i=0;i<beaconList.length;i++){//
                     //int i = random.nextInt(beaconList.length);
                     Editable host = new SpannableStringBuilder(beaconList[i]);
-
+                    int count=0;
                     Process p = null;
                     try {
-                        String pingCmd = "ping -s 100 -c 10 " + host;//-D doesnt work on android
+                        String pingCmd = "ping -n -c 10 -w 30 -i 1 -s 100 " + host;//-D doesnt work on android  ping -n -w %deadline -c %count -i %interval -s %packetsize %destination
                         String pingResult = "";
 
                         Runtime r = Runtime.getRuntime();
