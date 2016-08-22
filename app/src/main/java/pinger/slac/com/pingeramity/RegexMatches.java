@@ -150,13 +150,13 @@ public class RegexMatches
     }
 
     public static String countICMP(String input) {
-        Pattern p = Pattern.compile("icmp_seq=");
+        Pattern p = Pattern.compile("icmp_seq=\\d+");
         Matcher m = p.matcher(input);
         int i=0;
         String icmp="";
         while (m.find()){
             i++;
-            icmp+=i+" ";
+            icmp+=Integer.parseInt(m.group(0).replaceAll("[\\D]", ""))+" ";
         }
         return icmp;
     }
