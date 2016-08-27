@@ -17,6 +17,7 @@ public class DeviceBooting extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+
             long timeMillis = System.currentTimeMillis();
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
             Date resultdate = new Date(timeMillis);

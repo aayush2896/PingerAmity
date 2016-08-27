@@ -49,7 +49,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
         text = (TextView) findViewById(R.id.tvDisplay);
         Button button = (Button) findViewById(R.id.bPing);
         button.setOnClickListener(this);
+        setUpAlarmForPing();
+        setUpDailyFilePush();
 
+
+        //PingWhenever app opens
+        //    Ping();
+
+        //Setting up file
+        MakeFile();
+    }
+
+    public void setUpAlarmForPing(){
         //Setup of alarm manger and PI
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent myIntent = new Intent(MainActivity.this, AlarmReceiver.class);
@@ -68,12 +79,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
         Log.w("Setting First Alarm","Setting First Alarm at: "+sdf.format(resultdate));
         Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
 
-        //PingWhenever app opens
-        Ping();
+    }
 
-       //Setting up file
-        MakeFile();
-      }
+    public void setUpDailyFilePush(){
+        //Setup of alarm manger and PI
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent myIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, 0);
+
+        //Setting 30mns ping interval
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.HOUR, 24);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+
+        //Formatting and setting up first alarm at a 30 mns interval
+        long timeMillis =  cal.getTimeInMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
+        Date resultdate = new Date(timeMillis);
+        Log.w("Setting DailyFileAlarm","Setting First Alarm at: "+sdf.format(resultdate));
+        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+    }
 
     public void MakeFile(){
         try {
@@ -167,8 +193,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }).start();
 
-
     }
+
+
+
 
     @Override
     public void onClick(View v) {
